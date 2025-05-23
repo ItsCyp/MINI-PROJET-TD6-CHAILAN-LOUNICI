@@ -5751,21 +5751,19 @@
     }).catch(console.log);
   }
   function loadResource(uri) {
-    return fetch(config_default.domain + uri).then((response) => {
-      if (response.ok)
-        return response.json();
-    }).catch(console.log);
-  }
-  function loadComments(uri) {
-    return fetch(config_default.domain + uri).then((response) => {
-      if (response.ok)
-        return response.json();
-    }).catch(console.log);
+    return new Promise((resolve, reject) => {
+      fetch(config_default.domain + uri).then((response) => {
+        if (response.ok) {
+          response.json().then(resolve);
+        } else {
+          reject(new Error("Network response was not ok"));
+        }
+      }).catch(reject);
+    });
   }
   var photoloader_default = {
     loadPicture,
-    loadResource,
-    loadComments
+    loadResource
   };
 
   // lib/ui.js
@@ -5780,7 +5778,7 @@
     document.querySelector("#la_categorie").innerHTML = `categorie : ${category.nom}`;
   }
   function displayComments(comments) {
-    document.querySelector("#les_commentaires").innerHTML = comments.map((comment) => `<li><p>${comment.pseudo} : </p> <p>${comment.content}</p></li>`).join("");
+    document.querySelector("#les_commentaires").innerHTML = comments.map((comment) => `<li>(${comment.pseudo}) : ${comment.content}</li>`).join("");
   }
   var ui_default = {
     displayPicture,
@@ -5798,15 +5796,39 @@
       console.log(res.photo.type);
       console.log(res.photo.url.href);
       ui_default.displayPicture(res.photo);
-      let cat = yield photoloader_default.loadResource(res.links.categorie.href);
+      let cat = yield getCategory(res);
       console.log(cat);
-      console.log(cat.categorie.nom);
-      console.log(cat.categorie.id);
-      console.log(cat.categorie.descr);
-      ui_default.displayCategory(cat.categorie);
-      let comments = yield photoloader_default.loadComments(res.links.comments.href);
+      console.log(cat.nom);
+      console.log(cat.id);
+      console.log(cat.descr);
+      ui_default.displayCategory(cat);
+      let comments = yield getComments(res);
       console.log(comments);
-      ui_default.displayComments(comments.comments);
+      ui_default.displayComments(comments);
+    });
+  }
+  function getCategory(picture) {
+    return __async(this, null, function* () {
+      return new Promise((resolve, reject) => __async(this, null, function* () {
+        let cat = yield photoloader_default.loadResource(picture.links.categorie.href);
+        if (cat.categorie) {
+          resolve(cat.categorie);
+        } else {
+          reject(new Error("Category not found"));
+        }
+      }));
+    });
+  }
+  function getComments(picture) {
+    return __async(this, null, function* () {
+      return new Promise((resolve, reject) => __async(this, null, function* () {
+        let comments = yield photoloader_default.loadResource(picture.links.comments.href);
+        if (comments.comments) {
+          resolve(comments.comments);
+        } else {
+          reject(new Error("Comments not found"));
+        }
+      }));
     });
   }
   getPicture(window.location.hash ? window.location.hash.substr(1) : 105);
