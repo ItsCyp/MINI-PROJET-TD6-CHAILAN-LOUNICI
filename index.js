@@ -1,5 +1,7 @@
 import photoloader from "./lib/photoloader.js";
 import ui from "./lib/ui.js";
+import gallery from "./lib/gallery.js";
+import galleryUi from "./lib/gallery_ui.js";
 
 async function getPicture(id) {
     let res = await photoloader.loadPicture(id);
@@ -43,5 +45,30 @@ async function getComments(picture) {
         }
     });
 }
+
+const onError = err => console.error('Erreur galerie :', err);
+
+const actions = {
+    loadGallery: gallery.load,
+    first:       gallery.first,
+    prev:        gallery.prev,
+    next:        gallery.next,
+    last:        gallery.last,
+};
+  
+
+document.querySelectorAll("#gallery-nav button").forEach(button => {
+    button.addEventListener("click", () => {
+        const action = actions[button.id];
+        if (action) {
+            action()
+                .then(data => {
+                    galleryUi.displayGallery(data);
+                })
+                .catch(onError);
+        }
+    });
+});
+
 
 getPicture(window.location.hash ? window.location.hash.substr(1): 105);

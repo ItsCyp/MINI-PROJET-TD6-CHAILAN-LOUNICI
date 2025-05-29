@@ -255,12 +255,12 @@
           if (options.data) {
             data = _utils.createFrame(options.data);
           }
-          function execIteration(field, index, last) {
+          function execIteration(field, index, last2) {
             if (data) {
               data.key = field;
               data.index = index;
               data.first = index === 0;
-              data.last = !!last;
+              data.last = !!last2;
               if (contextPath) {
                 data.contextPath = contextPath + field;
               }
@@ -1670,18 +1670,18 @@
               return (past.length > 20 ? "..." : "") + past.substr(-20).replace(/\n/g, "");
             },
             upcomingInput: function upcomingInput() {
-              var next = this.match;
-              if (next.length < 20) {
-                next += this._input.substr(0, 20 - next.length);
+              var next2 = this.match;
+              if (next2.length < 20) {
+                next2 += this._input.substr(0, 20 - next2.length);
               }
-              return (next.substr(0, 20) + (next.length > 20 ? "..." : "")).replace(/\n/g, "");
+              return (next2.substr(0, 20) + (next2.length > 20 ? "..." : "")).replace(/\n/g, "");
             },
             showPosition: function showPosition() {
               var pre = this.pastInput();
               var c = new Array(pre.length + 1).join("-");
               return pre + this.upcomingInput() + "\n" + c + "^";
             },
-            next: function next() {
+            next: function next2() {
               if (this.done) {
                 return this.EOF;
               }
@@ -2179,24 +2179,24 @@
         if (i === void 0) {
           i = body.length;
         }
-        var prev = body[i - 1], sibling = body[i - 2];
-        if (!prev) {
+        var prev2 = body[i - 1], sibling = body[i - 2];
+        if (!prev2) {
           return isRoot;
         }
-        if (prev.type === "ContentStatement") {
-          return (sibling || !isRoot ? /\r?\n\s*?$/ : /(^|\r?\n)\s*?$/).test(prev.original);
+        if (prev2.type === "ContentStatement") {
+          return (sibling || !isRoot ? /\r?\n\s*?$/ : /(^|\r?\n)\s*?$/).test(prev2.original);
         }
       }
       function isNextWhitespace(body, i, isRoot) {
         if (i === void 0) {
           i = -1;
         }
-        var next = body[i + 1], sibling = body[i + 2];
-        if (!next) {
+        var next2 = body[i + 1], sibling = body[i + 2];
+        if (!next2) {
           return isRoot;
         }
-        if (next.type === "ContentStatement") {
-          return (sibling || !isRoot ? /^\s*?\r?\n/ : /^\s*?(\r?\n|$)/).test(next.original);
+        if (next2.type === "ContentStatement") {
+          return (sibling || !isRoot ? /^\s*?\r?\n/ : /^\s*?(\r?\n|$)/).test(next2.original);
         }
       }
       function omitRight(body, i, multiple) {
@@ -3590,18 +3590,18 @@
         var previousName = 0;
         var previousSource = 0;
         var result = "";
-        var next;
+        var next2;
         var mapping;
         var nameIdx;
         var sourceIdx;
         var mappings = this._mappings.toArray();
         for (var i = 0, len = mappings.length; i < len; i++) {
           mapping = mappings[i];
-          next = "";
+          next2 = "";
           if (mapping.generatedLine !== previousGeneratedLine) {
             previousGeneratedColumn = 0;
             while (mapping.generatedLine !== previousGeneratedLine) {
-              next += ";";
+              next2 += ";";
               previousGeneratedLine++;
             }
           } else {
@@ -3609,26 +3609,26 @@
               if (!util.compareByGeneratedPositionsInflated(mapping, mappings[i - 1])) {
                 continue;
               }
-              next += ",";
+              next2 += ",";
             }
           }
-          next += base64VLQ.encode(mapping.generatedColumn - previousGeneratedColumn);
+          next2 += base64VLQ.encode(mapping.generatedColumn - previousGeneratedColumn);
           previousGeneratedColumn = mapping.generatedColumn;
           if (mapping.source != null) {
             sourceIdx = this._sources.indexOf(mapping.source);
-            next += base64VLQ.encode(sourceIdx - previousSource);
+            next2 += base64VLQ.encode(sourceIdx - previousSource);
             previousSource = sourceIdx;
-            next += base64VLQ.encode(mapping.originalLine - 1 - previousOriginalLine);
+            next2 += base64VLQ.encode(mapping.originalLine - 1 - previousOriginalLine);
             previousOriginalLine = mapping.originalLine - 1;
-            next += base64VLQ.encode(mapping.originalColumn - previousOriginalColumn);
+            next2 += base64VLQ.encode(mapping.originalColumn - previousOriginalColumn);
             previousOriginalColumn = mapping.originalColumn;
             if (mapping.name != null) {
               nameIdx = this._names.indexOf(mapping.name);
-              next += base64VLQ.encode(nameIdx - previousName);
+              next2 += base64VLQ.encode(nameIdx - previousName);
               previousName = nameIdx;
             }
           }
-          result += next;
+          result += next2;
         }
         return result;
       };
@@ -5740,7 +5740,8 @@
   var domain = "https://webetu.iutnc.univ-lorraine.fr";
   var config_default = {
     URL: domain + URI,
-    domain
+    domain,
+    URI
   };
 
   // lib/photoloader.js
@@ -5784,6 +5785,71 @@
     displayPicture,
     displayCategory,
     displayComments
+  };
+
+  // lib/gallery.js
+  var currentPage = null;
+  function load() {
+    return photoloader_default.loadResource(config_default.URI + "/photos").then((data) => {
+      currentPage = data;
+      return data;
+    });
+  }
+  function navigate(rel) {
+    if (!currentPage || !currentPage.links[rel]) {
+      return Promise.reject(new Error(`Pas de lien '${rel}' disponible.`));
+    }
+    const href = currentPage.links[rel].href;
+    return photoloader_default.loadResource(href).then((data) => {
+      currentPage = data;
+      return data;
+    });
+  }
+  function next() {
+    return navigate("next");
+  }
+  function prev() {
+    return navigate("prev");
+  }
+  function first() {
+    return navigate("first");
+  }
+  function last() {
+    return navigate("last");
+  }
+  var gallery_default = {
+    load,
+    next,
+    prev,
+    first,
+    last
+  };
+
+  // lib/gallery_ui.js
+  function displayGallery(gallery) {
+    const container = document.querySelector("section#gallery");
+    if (!container) {
+      console.error("Container not found");
+      return;
+    }
+    container.innerHTML = "";
+    gallery.photos.forEach((item) => {
+      const p = item.photo;
+      const figure = document.createElement("figure");
+      const link = document.createElement("a");
+      link.href = config_default.domain + p.original.href;
+      link.target = "_blank";
+      const img = document.createElement("img");
+      img.src = config_default.domain + p.thumbnail.href;
+      img.alt = p.titre;
+      img.setAttribute("data-photoId", p.id);
+      link.appendChild(img);
+      figure.appendChild(link);
+      container.appendChild(figure);
+    });
+  }
+  var gallery_ui_default = {
+    displayGallery
   };
 
   // index.js
@@ -5831,6 +5897,24 @@
       }));
     });
   }
+  var onError = (err) => console.error("Erreur galerie :", err);
+  var actions = {
+    loadGallery: gallery_default.load,
+    first: gallery_default.first,
+    prev: gallery_default.prev,
+    next: gallery_default.next,
+    last: gallery_default.last
+  };
+  document.querySelectorAll("#gallery-nav button").forEach((button) => {
+    button.addEventListener("click", () => {
+      const action = actions[button.id];
+      if (action) {
+        action().then((data) => {
+          gallery_ui_default.displayGallery(data);
+        }).catch(onError);
+      }
+    });
+  });
   getPicture(window.location.hash ? window.location.hash.substr(1) : 105);
 })();
 //# sourceMappingURL=index.js.map

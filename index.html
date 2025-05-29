@@ -8,26 +8,26 @@
 <body>
 <main id="photo">
 
-<section id="la_photo">
-   <img src="">
-    <h4>titre</h4>
-      <p>description</p>
-	  <p>type, defX x defY</p>
-	  <h4 id="la_categorie">categorie : categorie de l'image</h4>
-	  <h4>commentaires : </h4>
-	  <ul id="les_commentaires">
-		  <li>pseudo : Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi, vitae.</li>
-		  <li>pseudo : Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi, recusandae.</li>
-	  </ul>
-
-</section>
+	<section id="la_photo">
+	<img src="">
+		<h4>titre</h4>
+		<p>description</p>
+		<p>type, defX x defY</p>
+		<h4 id="la_categorie">categorie : categorie de l'image</h4>
+		<h4>commentaires : </h4>
+		<ul id="les_commentaires">
+			<li>pseudo : Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi, vitae.</li>
+			<li>pseudo : Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi, recusandae.</li>
+		</ul>
+		
+	</section>
 </main>
 
 <script id="photoTemplate" type="text/x-handlebars-template">
 	<h1>Photo : {{id}}</h1>
 
 	<section id="la_photo">
-		<img src="{{url.href}}">
+		<img id="photo"src="{{url.href}}">
 		<h4>{{titre}}</h4>
 		<p>{{descr}}</p>
 		<p>{{type}}, {{height}} x {{width}}</p>
@@ -41,6 +41,19 @@
 	</section>
 </script>
 
+
+
+<nav id="gallery-nav">
+	<button id="first">« First</button>
+	<button id="prev">‹ Prev</button>
+	<button id="loadGallery">Load</button>
+	<button id="next">Next ›</button>
+	<button id="last">Last »</button>
+  </nav>
+  
+<section id="gallery"></section>
+
+<script src="https://unpkg.com/handlebars@4.7.6/dist/handlebars.min.js"></script>
 <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 <script  src='js/index.js' defer ></script>
 </body>

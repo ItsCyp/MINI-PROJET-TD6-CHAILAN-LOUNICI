@@ -5,5 +5,8 @@
   },
   "scripts": {
     "build": "esbuild index.js --bundle  --sourcemap --target=es2015 --outfile=js/index.js"
+  },
+  "devDependencies": {
+    "prettier": "3.5.3"
   }
 }
